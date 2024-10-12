@@ -1,0 +1,37 @@
+name: Deploy static site
+
+on:
+  push:
+    branches:
+      - main  # Triggers the workflow on push to the 'main' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build the static site
+      run: |
+        # Install PostCSS and other necessary tools
+        npm install postcss-cli autoprefixer cssnano
+
+        # Run the build process for your static site
+        postcss styles.css --use autoprefixer -o dist/styles.min.css
+        cp index.html dist/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
